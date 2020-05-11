@@ -1,7 +1,8 @@
 import { Button, Checkbox, createStyles, CssBaseline, Divider, FormControlLabel, List, ListItem, makeStyles, Paper, TextField, Theme } from '@material-ui/core';
 import { Field, Form, Formik } from 'formik'; // Using formik-undo's  formik module one folder up.
-import { FormikUndoContextProvider, useFormikUndo, useFormikUndoAutoSave } from 'formik-undo';
-import React, { useState } from 'react';
+import { FormikUndoContextProvider, useFormikUndo } from 'formik-undo';
+import { AutoSaveOptions } from 'formik-undo/useFormikUndoAutoSave';
+import React, { useEffect, useRef, useState } from 'react';
 import { MaterialFormikUndoControl } from './MaterialUiFormikUndoControl';
 
 
@@ -130,13 +131,28 @@ const RedoableCounter = () => {
   );
 };
 
+const initialAutoSaveOptions = {
+  enabled: true,
+  throttleDelay: 1000,
+  saveOnFieldChange: true,
+};
 
-const AutoSaveControl = () => {
+const AutoSaveControl = ({ onAutoSaveOptionsChange }: { onAutoSaveOptionsChange: (options: AutoSaveOptions) => void }) => {
   const classes = useStyles();
-  const [enabled, setEnabled] = useState(true);
-  const [throttleDelay, setThrottleDelay] = useState(1000);
-  const [saveOnFieldChange, setSaveOnFieldChange] = useState(true);
-  useFormikUndoAutoSave({ enabled, throttleDelay, saveOnFieldChange });
+  const [enabled, setEnabled] = useState(initialAutoSaveOptions.enabled);
+  const [throttleDelay, setThrottleDelay] = useState(initialAutoSaveOptions.throttleDelay);
+  const [saveOnFieldChange, setSaveOnFieldChange] = useState(initialAutoSaveOptions.saveOnFieldChange);
+  const isFirstRenderRef = useRef(true);
+  useEffect(
+    () => {
+      if (isFirstRenderRef.current) {
+        isFirstRenderRef.current = false;
+        return;
+      }
+      onAutoSaveOptionsChange({ enabled, throttleDelay, saveOnFieldChange });
+    },
+    [enabled, throttleDelay, saveOnFieldChange, onAutoSaveOptionsChange],
+  );
   return (
     <div className={classes.autoSaveControl}>
       <FormControlLabel
@@ -173,7 +189,7 @@ const AutoSaveControl = () => {
 };
 
 
-const Sidebar = () => {
+const Sidebar = ({ onAutoSaveOptionsChange }: { onAutoSaveOptionsChange: (options: AutoSaveOptions) => void }) => {
   return (
     <>
       <SaveCheckpointButton />
@@ -181,7 +197,7 @@ const Sidebar = () => {
       <UndoableCounter/>
       <RedoableCounter/>
       <Divider/>
-      <AutoSaveControl />
+      <AutoSaveControl onAutoSaveOptionsChange={onAutoSaveOptionsChange} />
     </>
   )
 };
@@ -217,6 +233,7 @@ const MyForm = () => {
 
 const App = () => {
   const classes = useStyles();
+  const [autoSaveOptions, setAutoSaveOptions] = useState<AutoSaveOptions>(initialAutoSaveOptions);
 
   const handleSubmit = (article: Article) => {
     //...
@@ -229,12 +246,12 @@ const App = () => {
           initialValues={initialValues}
           onSubmit={handleSubmit}
         >
-          <FormikUndoContextProvider>
+          <FormikUndoContextProvider autoSave={autoSaveOptions}>
             <Paper className={classes.main}>
               <MyForm />
             </Paper>
             <Paper className={classes.sidebar}>
-              <Sidebar />
+              <Sidebar onAutoSaveOptionsChange={setAutoSaveOptions} />
             </Paper>
           </FormikUndoContextProvider>
         </Formik>
