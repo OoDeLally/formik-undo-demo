@@ -1,13 +1,12 @@
 import { Button, Checkbox, createStyles, CssBaseline, Divider, FormControlLabel, List, ListItem, makeStyles, Paper, TextField, Theme } from '@material-ui/core';
 import { Field, Form, Formik } from 'formik'; // Using formik-undo's  formik module one folder up.
-import { FormikUndoContextProvider, useFormikUndo } from 'formik-undo';
-import { AutoSaveOptions } from 'formik-undo/useFormikUndoAutoSave';
+import { useFormikUndo, AutoSaveOptions, FormikUndo } from 'formik-undo';
 import React, { useEffect, useRef, useState } from 'react';
-import { MaterialFormikUndoControl } from './MaterialUiFormikUndoControl';
+import { MaterialFormikUndoControlBar } from './MaterialUiFormikUndoControlBar';
 
 
 
-interface Article {
+type Article = {
   title: string;
   content: string;
 }
@@ -131,15 +130,17 @@ const RedoableCounter = () => {
   );
 };
 
-const initialAutoSaveOptions = {
+const initialAutoSaveOptions: AutoSaveOptions = {
   enabled: true,
   throttleDelay: 1000,
   saveOnFieldChange: true,
+  preventWordCutting: true,
 };
 
 const AutoSaveControl = ({ onAutoSaveOptionsChange }: { onAutoSaveOptionsChange: (options: AutoSaveOptions) => void }) => {
   const classes = useStyles();
   const [enabled, setEnabled] = useState(initialAutoSaveOptions.enabled);
+  const [preventWordCutting, setPreventWordCutting] = useState(initialAutoSaveOptions.preventWordCutting);
   const [throttleDelay, setThrottleDelay] = useState(initialAutoSaveOptions.throttleDelay);
   const [saveOnFieldChange, setSaveOnFieldChange] = useState(initialAutoSaveOptions.saveOnFieldChange);
   const isFirstRenderRef = useRef(true);
@@ -149,9 +150,9 @@ const AutoSaveControl = ({ onAutoSaveOptionsChange }: { onAutoSaveOptionsChange:
         isFirstRenderRef.current = false;
         return;
       }
-      onAutoSaveOptionsChange({ enabled, throttleDelay, saveOnFieldChange });
+      onAutoSaveOptionsChange({ enabled, throttleDelay, saveOnFieldChange, preventWordCutting });
     },
-    [enabled, throttleDelay, saveOnFieldChange, onAutoSaveOptionsChange],
+    [enabled, throttleDelay, saveOnFieldChange, onAutoSaveOptionsChange, preventWordCutting],
   );
   return (
     <div className={classes.autoSaveControl}>
@@ -168,6 +169,14 @@ const AutoSaveControl = ({ onAutoSaveOptionsChange }: { onAutoSaveOptionsChange:
               <Checkbox checked={saveOnFieldChange} disabled={!enabled} onChange={(e, checked) => setSaveOnFieldChange(checked)} />
             }
             label="Save on field change"
+          />
+        </ListItem>
+        <ListItem>
+          <FormControlLabel
+            control={
+              <Checkbox checked={preventWordCutting} disabled={!enabled} onChange={(e, checked) => setPreventWordCutting(checked)} />
+            }
+            label="Prevent word cutting"
           />
         </ListItem>
         <ListItem>
@@ -208,7 +217,7 @@ const MyForm = () => {
   return (
     <Form>
       <div className={classes.undoControlBar}>
-        <MaterialFormikUndoControl />
+        <MaterialFormikUndoControlBar />
       </div>
       <Field
         as={TextField}
@@ -246,14 +255,14 @@ const App = () => {
           initialValues={initialValues}
           onSubmit={handleSubmit}
         >
-          <FormikUndoContextProvider autoSave={autoSaveOptions}>
+          <FormikUndo autoSave={autoSaveOptions}>
             <Paper className={classes.main}>
               <MyForm />
             </Paper>
             <Paper className={classes.sidebar}>
               <Sidebar onAutoSaveOptionsChange={setAutoSaveOptions} />
             </Paper>
-          </FormikUndoContextProvider>
+          </FormikUndo>
         </Formik>
     </div>
   );
