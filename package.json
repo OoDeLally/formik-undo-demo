@@ -18,7 +18,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "link-deps": "npm link react react-dom formik formik-undo # Use this to link to your local formik-undo repo"
+    "link-deps": "npm link react react-dom formik formik-undo # Use this to link to the local formik-undo repo"
   },
   "eslintConfig": {
     "extends": "react-app"
