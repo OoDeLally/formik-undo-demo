@@ -9,12 +9,18 @@ import { MaterialFormikUndoControlBar } from './MaterialUiFormikUndoControlBar';
 type Article = {
   title: string;
   content: string;
+  checkboxA: boolean;
+  checkboxB: boolean;
+  checkboxC: boolean;
 }
 
 
 const initialValues = {
   title: '',
   content: '',
+  checkboxA: true,
+  checkboxB: false,
+  checkboxC: true,
 };
 
 
@@ -235,6 +241,20 @@ const MyForm = () => {
         variant="outlined" multiline
         rows={3}
       />
+      <FormControlLabel
+        control={<Field as={Checkbox} type="checkbox" name="checkboxA" />}
+        label="Checkbox A"
+      />
+      <FormControlLabel
+        control={<Field as={Checkbox} type="checkbox" name="checkboxB" />}
+        label="Checkbox B"
+      />
+      <FormControlLabel
+        control={<Field as={Checkbox} type="checkbox" name="checkboxC" />}
+        label="Checkbox C"
+      />
+      <ListItem>
+      </ListItem>
     </Form>
   )
 };
