@@ -1,6 +1,6 @@
-import { Button, Checkbox, createStyles, CssBaseline, Divider, FormControlLabel, List, ListItem, makeStyles, Paper, TextField, Theme } from '@material-ui/core';
+import { Button, Checkbox, createStyles, CssBaseline, Divider, FormControl, FormControlLabel, InputLabel, List, ListItem, makeStyles, MenuItem, Paper, Select, TextField, Theme } from '@material-ui/core';
 import { Field, Form, Formik } from 'formik'; // Using formik-undo's  formik module one folder up.
-import { useFormikUndo, AutoSaveOptions, FormikUndo } from 'formik-undo';
+import { AutoSaveOptions, FormikUndo, useFormikUndo } from 'formik-undo';
 import React, { useEffect, useRef, useState } from 'react';
 import { MaterialFormikUndoControlBar } from './MaterialUiFormikUndoControlBar';
 
@@ -12,15 +12,17 @@ type Article = {
   checkboxA: boolean;
   checkboxB: boolean;
   checkboxC: boolean;
+  publishDestination: 'nowhere' | 'here' | 'there';
 }
 
 
-const initialValues = {
+const initialValues: Article = {
   title: '',
   content: '',
   checkboxA: true,
   checkboxB: false,
   checkboxC: true,
+  publishDestination: 'here',
 };
 
 
@@ -82,6 +84,14 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(4),
       width: '23em',
     },
+    checkboxes: {
+      display: 'block',
+      marginTop: theme.spacing(2),
+    },
+    publishDestination: {
+      display: 'block',
+      marginTop: theme.spacing(4),
+    }
   }),
 );
 
@@ -218,6 +228,7 @@ const Sidebar = ({ onAutoSaveOptionsChange }: { onAutoSaveOptionsChange: (option
 };
 
 
+
 const MyForm = () => {
   const classes = useStyles();
   return (
@@ -241,20 +252,33 @@ const MyForm = () => {
         variant="outlined" multiline
         rows={3}
       />
-      <FormControlLabel
-        control={<Field as={Checkbox} type="checkbox" name="checkboxA" />}
-        label="Checkbox A"
-      />
-      <FormControlLabel
-        control={<Field as={Checkbox} type="checkbox" name="checkboxB" />}
-        label="Checkbox B"
-      />
-      <FormControlLabel
-        control={<Field as={Checkbox} type="checkbox" name="checkboxC" />}
-        label="Checkbox C"
-      />
-      <ListItem>
-      </ListItem>
+      <div className={classes.checkboxes}>
+        <FormControlLabel
+          control={<Field as={Checkbox} type="checkbox" name="checkboxA" />}
+          label="Checkbox A"
+        />
+        <FormControlLabel
+          control={<Field as={Checkbox} type="checkbox" name="checkboxB" />}
+          label="Checkbox B"
+        />
+        <FormControlLabel
+          control={<Field as={Checkbox} type="checkbox" name="checkboxC" />}
+          label="Checkbox C"
+        />
+      </div>
+      <FormControl variant="outlined" className={classes.publishDestination}>
+        <Field
+          as={Select}
+          name="publishDestination"
+          label="Publish"
+          // options={[{ value: 'here' }, { value: 'there' }, { value: 'nowhere' }]}
+        >
+          <MenuItem value="here">here</MenuItem>
+          <MenuItem value="there">there</MenuItem>
+          <MenuItem value="nowhere">nowhere</MenuItem>
+        </Field>
+        <InputLabel>Publish</InputLabel>
+      </FormControl>
     </Form>
   )
 };
